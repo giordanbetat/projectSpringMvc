@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+<meta charset="UTF-8">
+<title>Fones</title>
+
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('.sidenav').sidenav();
+	});
+</script>
+
+<style type="text/css">
+form input[type=submit] {
+	color: white;
+}
+</style>
+</head>
+<body>
+
+	<nav
+		style="padding: 0px 10px; position: absolute; background-color: #5F9EA0;">
+		<div class="nav-wrapper">
+			<a href="/" class="brand-logo">LOGO</a> <a href="#"
+				class="sidenav-trigger" data-target="mobile-nav"> <i
+				class="material-icons">menu</i>
+			</a>
+
+			<ul class="right hide-on-med-and-down ">
+				<li><a th:href="@{/}"> <i title="Home"
+						class="medium material-icons">home</i></a></li>
+				<li><a th:href="@{/register}"><i title="Register"
+						class="medium material-icons">add_circle</i></a></li>
+				<li><a th:href="@{/logout}"> <i title="Logout"
+						class="medium material-icons">exit_to_app</i>
+				</a></li>
+			</ul>
+		</div>
+	</nav>
+
+	<ul class="sidenav" id="mobile-nav">
+		<li><a th:href="@{/}"> <i class="medium material-icons">home</i>Home
+		</a></li>
+		<li><a th:href="@{/register}"> <i
+				class="medium material-icons">add_circle</i>Register
+		</a></li>
+		<li><a th:href="@{/logout}"> <i class="medium material-icons">exit_to_app</i>Logout
+		</a></li>
+	</ul>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+
+	<div class="valign-wrapper row login-box">
+		<div class="col card hoverable s10 pull-s1 m6 pull-m3 l10 pull-l1">
+			<div class="row">
+				<div th:each="m : ${msg}">
+					<span th:text="${m}" style="color: red"></span> <br />
+				</div>
+				<br />
+				<div class="card-content">
+					<span class="card-title center-align">Register fones</span> <a
+						class="btn" th:href="@{/register}"> <i
+						title="Voltar ao cadastro" class="medium material-icons">arrow_back</i>
+					</a>
+					<table class="highlight centered responsive-table">
+
+						<thead>
+							<tr>
+								<th>ID:</th>
+								<th>NOME:</th>
+								<th>SOBRENOME</th>
+								<th>IDADE:</th>
+								<th>DATA DE NASCIMENTO:</th>
+								<th>GENERO:</th>
+								<th>PROFISSÃO:</th>
+								<th>CARGO:</th>
+								<th>CEP:</th>
+
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="person : ${personobj}">
+
+								<td th:text="${person.id}" />
+
+								<td th:text="${person.name}" />
+
+								<td th:text="${person.surname}" />
+
+								<td th:text="${person.age}" />
+
+								<td th:text="${person.dateBirth}" />
+
+								<td th:text="${person.genre}" />
+
+								<td th:text="${person.profession.name}" />
+
+								<td th:text="${person.office}" />
+
+								<td th:text="${person.cep}" />
+							</tr>
+						</tbody>
+					</table>
+
+					<br /> <br />
+
+					<h5 class="center-align">Telefones</h5>
+					<div class="row">
+
+						<form
+							th:action="@{/registerphone/{idperson}(idperson=${personobj.id})}"
+							method="post" class="col s12"
+							onsubmit="return validarCampos() ? true : false">
+
+							<div class="row">
+
+								<div class="input-field col s6">
+									<label class="active" for="number">Número</label> <input
+										id="number" name="number" class="validate">
+								</div>
+
+								<div class="input-field col s3">
+									<label for="type" class="active">Tipo:</label> <select
+										class="browser-default" id="type" name="type">
+
+										<option value="Celular" th:text="Celular" />
+
+										<option value="Residencial" th:text="Residencial" />
+
+										<option value="Comercial" th:text="Comercial" />
+
+									</select>
+
+								</div>
+								<br /> <br /> <br /> <br /> <br />
+								<div class="row center-align">
+									<input type="submit" value="Adicionar"
+										class="waves-effect waves-light btn">
+								</div>
+							</div>
+
+						</form>
+
+					</div>
+					<table class="highlight centered responsive-table">
+						<thead>
+							<tr>
+								<th>NUMERO:</th>
+								<th>TIPO:</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr th:each="phone : ${phones}">
+								<td th:text="${phone.number}" />
+								<td th:text="${phone.type}" />
+								<td><a class="waves-effect waves-light btn"
+									th:href="@{/removephone/{idphone}(idphone=${phone.id})}"
+									sec:authorize="hasRole('ROLE_ADMIN')">Excluir</a></td>
+							</tr>
+						</tbody>
+
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		$(function() {
+			$(".button-collapse").sideNav();
+		});
+	</script>
+
+	<script type="text/javascript">
+		function validarCampos() {
+			numero = document.getElementById('number').value;
+			tipo = document.getElementById('type').value;
+
+			if (number === '') {
+				alert('Numero deve ser informado');
+
+				return false;
+
+			} else if (type === '') {
+				alert('Tipo deve ser informado');
+
+				return false;
+			}
+
+			return true;
+		}
+	</script>
+</body>
+</html>

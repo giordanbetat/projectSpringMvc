@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+	rel="stylesheet">
+
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('.sidenav').sidenav();
+	});
+</script>
+
+<style type="text/css">
+form input[type=submit] {
+	color: white;
+}
+</style>
+</head>
+<body>
+
+	<nav
+		style="padding: 0px 10px; position: absolute; background-color: #5F9EA0;">
+		<div class="nav-wrapper">
+			<a href="/" class="brand-logo">LOGO</a> <a href="#"
+				class="sidenav-trigger" data-target="mobile-nav"> <i
+				class="material-icons">menu</i>
+			</a>
+
+			<ul class="right hide-on-med-and-down ">
+				<li><a th:href="@{/}"> <i title="Home"
+						class="medium material-icons">home</i></a></li>
+				<li><a th:href="@{/login}"> <i title="Login"
+						class="medium material-icons">face</i></a></li>
+			</ul>
+		</div>
+	</nav>
+
+	<ul class="sidenav" id="mobile-nav">
+		<li><a th:href="@{/}"> <i class="medium material-icons">home</i>Home
+		</a></li>
+		<li><a th:href="@{/login}"> <i class="medium material-icons">face</i>Login
+		</a></li>
+	</ul>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<div class="valign-wrapper row login-box">
+		<div class="col card hoverable s10 pull-s1 m6 pull-m3 l4 pull-l4">
+			<form th:action="@{/login}" method="post" class="col s12"
+				id="formlogin">
+				<div class="card-content">
+					<span class="card-title">Dados de Login</span>
+					<div class="row">
+						<div>
+							<label for="username" class="active">Login</label> <input
+								name="username">
+						</div>
+						<div>
+							<label for="password" class="active">Senha</label> <input
+								type="password" name="password">
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="input-field right-align col s12">
+							<input name="submit" type="submit" value="Entrar"
+								class="waves-effect waves-light btn" />
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script>
+		$(function() {
+			$(".button-collapse").sideNav();
+		});
+	</script>
+
+</body>
+
+
+</html>
