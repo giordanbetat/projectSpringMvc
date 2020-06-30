@@ -231,7 +231,7 @@ form input[type=submit] {
 								th:object="${personobj}">
 								<div class="input-field">
 									<input placeholder="Pesquisa por nome" id="search"
-										type="search" name="name" required> <label
+										type="search" name="name" required th:value="${name}"> <label
 										class="label-icon" for="name"> <i
 										class="material-icons">search</i>
 									</label> <i class="material-icons">close</i>
@@ -282,7 +282,7 @@ form input[type=submit] {
 							</tr>
 						</thead>
 						<tbody>
-							<tr th:each="person : ${persons}">
+							<tr th:each="person : ${persons.content}">
 
 								<td th:text="${person.id}" />
 
@@ -293,16 +293,14 @@ form input[type=submit] {
 
 								<td th:text="${person.surname}" />
 
-								<td sec:authorize="hasRole('ROLE_ADMIN')">
-									
-								<a th:if="${person.curriculum != null}"	class="btn green waves-effect waves-light"
+								<td sec:authorize="hasRole('ROLE_ADMIN')"><a
+									th:if="${person.curriculum != null}"
+									class="btn green waves-effect waves-light"
 									th:href="@{/downloadCurriculum/{idperson}(idperson=${person.id})}"><i
-										class="medium material-icons">picture_as_pdf</i></a> 
-										
-								<a th:if="${person.curriculum == null}" class="btn black waves-effect waves-light"><i
-										class="medium material-icons">picture_as_pdf</i></a>
-										
-								</td>
+										class="medium material-icons">picture_as_pdf</i></a> <a
+									th:if="${person.curriculum == null}"
+									class="btn grey waves-effect waves-light"><i
+										class="medium material-icons">picture_as_pdf</i></a></td>
 
 								<td sec:authorize="hasRole('ROLE_ADMIN')"><a
 									class="btn blue waves-effect waves-light"
@@ -315,6 +313,22 @@ form input[type=submit] {
 							</tr>
 						</tbody>
 					</table>
+					<div class="row" style="margin-top: 30px">
+						<div class="center-align">
+							<span th:if="${persons.hasPrevious()}"> <a
+								th:href="@{/personspage(page=${persons.number - 1}, size=${persons.size}, name=${name})}">Anterior</a>
+							</span>
+							<th:block
+								th:each="index : ${#numbers.sequence(0, persons.totalPages - 1)}">
+								<a
+									th:href="@{/personspage(page=${index}, size=${persons.size})}">[[
+									${index} + 1 ]]</a>
+							</th:block>
+							<span th:if="${persons.hasNext()}"> <a
+								th:href="@{/personspage(page=${persons.number + 1}, size=${persons.size}, name=${name})}">Proximo</a>
+							</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

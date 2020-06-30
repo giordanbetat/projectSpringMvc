@@ -10,6 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -48,12 +53,25 @@ public class PersonController {
 
 		ModelAndView andView = new ModelAndView("registers/register");
 
-		andView.addObject("persons", personRepository.findAll());
+		andView.addObject("persons", personRepository.findAll(PageRequest.of(0, 5, Sort.by("name"))));
 		andView.addObject("personobj", new Person());
 		andView.addObject("professions", professionRepository.findAll());
 
 		return andView;
 
+	}
+
+	@GetMapping(value = "/personspage")
+	public ModelAndView chargePersonPagination(@PageableDefault(size = 5) Pageable pageable, ModelAndView andView,
+			@RequestParam(value = "name") String name) {
+
+		Page<Person> page = personRepository.findPersonByNamePage(name, pageable);
+		andView.addObject("persons", page);
+		andView.addObject("personobj", new Person());
+		andView.addObject("name", name);
+		andView.setViewName("registers/register");
+
+		return andView;
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "**/save", consumes = { "multipart/form-data" })
@@ -62,7 +80,7 @@ public class PersonController {
 		if (result.hasErrors()) {
 			ModelAndView andView = new ModelAndView("registers/register");
 
-			andView.addObject("persons", personRepository.findAll());
+			andView.addObject("persons", personRepository.findAll(PageRequest.of(0, 5, Sort.by("name"))));
 			andView.addObject("personobj", person);
 			andView.addObject("professions", professionRepository.findAll());
 
@@ -83,7 +101,7 @@ public class PersonController {
 			person.setFileNameCurriculum(file.getOriginalFilename());
 		} else {
 			if (person.getId() != null && person.getId() > 0) {
-				
+
 				Person personAux = personRepository.findById(person.getId()).get();
 				person.setCurriculum(personAux.getCurriculum());
 				person.setFileTypeCurriculum(personAux.getFileTypeCurriculum());
@@ -94,7 +112,7 @@ public class PersonController {
 		personRepository.save(person);
 
 		ModelAndView andView = new ModelAndView("registers/register");
-		andView.addObject("persons", personRepository.findAll());
+		andView.addObject("persons", personRepository.findAll(PageRequest.of(0, 5, Sort.by("name"))));
 		andView.addObject("personobj", new Person());
 		andView.addObject("professions", professionRepository.findAll());
 
@@ -107,7 +125,7 @@ public class PersonController {
 
 		Optional<Person> person = personRepository.findById(idperson);
 		ModelAndView andView = new ModelAndView("registers/register");
-		andView.addObject("persons", personRepository.findAll());
+		andView.addObject("persons", personRepository.findAll(PageRequest.of(0, 5, Sort.by("name"))));
 		andView.addObject("personobj", person.get());
 		andView.addObject("professions", professionRepository.findAll());
 
@@ -121,7 +139,7 @@ public class PersonController {
 		personRepository.deleteById(idperson);
 
 		ModelAndView andView = new ModelAndView("registers/register");
-		andView.addObject("persons", personRepository.findAll());
+		andView.addObject("persons", personRepository.findAll(PageRequest.of(0, 5, Sort.by("name"))));
 		andView.addObject("personobj", new Person());
 		andView.addObject("professions", professionRepository.findAll());
 
@@ -131,25 +149,27 @@ public class PersonController {
 
 	@PostMapping(value = "**/searchperson")
 	public ModelAndView searchByName(@RequestParam(value = "name", required = false) String name,
-			@RequestParam(value = "genre", required = false) String genre) {
+			@RequestParam(value = "genre", required = false) String genre,
+			@PageableDefault(size = 5, sort = { "name" }) Pageable pageable) {
 
-		List<Person> persons = new ArrayList<Person>();
+		Page<Person> persons = null;
 
 		if (genre != null && !genre.isEmpty()) {
-			persons = personRepository.findPersonByNameAndGenre(name, genre);
+			persons = personRepository.findPersonByNameAndGenrePage(name, genre, pageable);
 
 		}
 
 		if (name == null) {
-			persons = personRepository.findPersonByGenre(genre);
+			persons = personRepository.findPersonByGenrePage(genre, pageable);
 		} else {
-			persons = personRepository.findPersonByName(name);
+			persons = personRepository.findPersonByNamePage(name, pageable);
 		}
 
 		ModelAndView andView = new ModelAndView("registers/register");
 		andView.addObject("persons", persons);
 		andView.addObject("personobj", new Person());
-		andView.addObject("professions", professionRepository.findAll());
+		andView.addObject("professions", personRepository.findAll(PageRequest.of(0, 5, Sort.by("name"))));
+		andView.addObject("name", name);
 
 		return andView;
 
@@ -162,10 +182,8 @@ public class PersonController {
 		List<Person> persons = new ArrayList<Person>();
 
 		if (name != null && !name.isEmpty()) {
-
 			persons = personRepository.findPersonByName(name);
 		} else {
-
 			persons = (List<Person>) personRepository.findAll();
 		}
 
@@ -189,7 +207,7 @@ public class PersonController {
 
 		Optional<Person> person = personRepository.findById(idperson);
 		ModelAndView andView = new ModelAndView("registers/phones");
-		andView.addObject("persons", personRepository.findAll());
+		andView.addObject("persons", personRepository.findAll(PageRequest.of(0, 5, Sort.by("name"))));
 		andView.addObject("personobj", person.get());
 		andView.addObject("phones", telephoneRepository.getTelephones(idperson));
 
@@ -244,25 +262,26 @@ public class PersonController {
 		return andView;
 
 	}
-	
+
 	@GetMapping("**/downloadCurriculum/{idperson}")
-	public void downloadCurriculum(@PathVariable("idperson") Long idperson, HttpServletResponse response) throws IOException {
-		
+	public void downloadCurriculum(@PathVariable("idperson") Long idperson, HttpServletResponse response)
+			throws IOException {
+
 		Person person = personRepository.findById(idperson).get();
-		
-		if(person.getCurriculum() != null) {
-			
+
+		if (person.getCurriculum() != null) {
+
 			response.setContentLength(person.getCurriculum().length);
 			response.setContentType(person.getFileTypeCurriculum());
-			
+
 			String headerKey = "Content-Diposition";
 			String headerValue = String.format("attachment; filename=\"%s\"", person.getFileNameCurriculum());
-			
+
 			response.setHeader(headerKey, headerValue);
-			
+
 			response.getOutputStream().write(person.getCurriculum());
 		}
-		
+
 	}
 
 }
